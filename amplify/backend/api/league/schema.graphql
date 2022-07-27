@@ -1,0 +1,34 @@
+input AMPLIFY { globalAuthRule: AuthRule = { allow: public } } # FOR TESTING ONLY!
+
+type Team @model {
+  id: ID!
+  name: String!
+  players: [Player] @manyToMany(relationName: "TeamPlayer")
+  games: [Game] @manyToMany(relationName: "TeamGame")
+  leagues: [League] @manyToMany(relationName: "TeamLeague")
+}
+
+type Player @model {
+  id: ID!
+  name: String!
+  teams: [Team] @manyToMany(relationName: "TeamPlayer")
+  games: [Game] @manyToMany(relationName: "PlayerGame")
+  leagues: [League] @manyToMany(relationName: "PlayerLeague")
+}
+
+type Game @model {
+  id: ID!
+  name: String!
+  teams: [Team] @manyToMany(relationName: "TeamGame")
+  players: [Player] @manyToMany(relationName: "PlayerGame")
+  leagueId: ID! @index(name: "byLeague", sortKeyFields: ["name"])
+  league: League @belongsTo(fields: "leagueId")
+}
+
+type League @model {
+  id: ID!
+  name: String!
+  teams: [Team] @manyToMany(relationName: "TeamLeague")
+  players: [Player] @manyToMany(relationName: "PlayerLeague")
+  games: [Game] @hasMany(indexName: "byLeague", fields:["id"])
+}
